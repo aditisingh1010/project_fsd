@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500;600;700;800&family=Geist:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base Styles for Youthful Zine */
+body {
+  background-color: #fef9f2; /* background */
+  color: #1d1b17; /* on-background */
+  font-family: 'Geist', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: max(884px, 100dvh);
+}
+
+/* Enforce Editorial Aesthetics */
+.editorial-border {
+  border: 2px solid #1C1917; /* Brutalist border */
+  border-radius: 0;
+}
+
+.no-shadow {
+  box-shadow: none !important;
+}
+
+.sharp-corners {
+  border-radius: 0 !important;
+}
+
+/* The Verdict & The Catch */
+.the-verdict {
+  border: 2px solid #1C1917;
+  background-color: #cf6721; /* terracotta */
+  color: #FFFFFF;
+  transform: rotate(-1deg);
+}
+
+.the-catch {
+  border: 3px solid #1C1917;
+  background-color: #fef9f2;
+  box-shadow: 6px 6px 0px #cf6721;
+  transform: rotate(1deg);
+}
+
+/* Interactive Elements */
+.btn-primary {
+  background-color: #1C1917; /* Primary Charcoal approximation */
+  color: #FFFFFF;
+  border: 2px solid #1C1917;
+  box-shadow: 4px 4px 0px #cf6721;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover {
+  box-shadow: 2px 2px 0px #cf6721;
+  transform: translate(2px, 2px);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border: 2px dashed #1C1917;
+  color: #1C1917;
+  transition: all 0.2s ease;
+  position: relative;
+}
+.btn-secondary::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid #cf6721;
+  z-index: -1;
+  transform: rotate(-2deg);
+}
+.btn-secondary:hover {
+  background-color: #f5f0e9; /* inverse-on-surface */
+  transform: rotate(1deg);
+}
+
+.btn-whatsapp {
+  background-color: #3F5E4A;
+  color: #FFFFFF;
+}
+
+/* Grid Layouts for High-End UI */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+/* Safe padding for fixed shell */
+main {
+  padding-top: 72px; /* TopAppBar height */
+  padding-bottom: 80px; /* BottomNavBar height + safe area */
+}
+@media (min-width: 768px) {
+  main {
+    padding-bottom: 0; /* BottomNav hidden on desktop */
+  }
+}
+
+.sticker-badge {
+  position: absolute;
+  background: #cf6721;
+  color: white;
+  padding: 4px 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 1px;
+  border: 2px solid #1C1917;
+  box-shadow: 2px 2px 0 #1C1917;
+  z-index: 30;
+  transform: rotate(-5deg);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
+}
