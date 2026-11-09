@@ -57,9 +57,9 @@ export default function SubmitListingModal({ isOpen, onClose, onListingCreated }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div 
-        className="w-full max-w-xl rounded-3xl glass-card overflow-hidden shadow-2xl border border-slate-200/80 dark:border-slate-700/80 max-h-[92vh] flex flex-col relative"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-ink/70">
+      <div
+        className="w-full max-w-xl glass-card max-h-[92vh] flex flex-col relative text-ink dark:text-[#fff8ea]"
         onClick={(e) => e.stopPropagation()}
       >
         <button 
@@ -71,11 +71,9 @@ export default function SubmitListingModal({ isOpen, onClose, onListingCreated }
 
         <div className="overflow-y-auto p-6 space-y-5">
           <div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-indigo-100 text-indigo-800 dark:bg-indigo-950/80 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-              Peer Directory
-            </span>
-            <h3 className="text-xl font-extrabold text-slate-900 dark:text-white mt-1">
-              Submit a Campus Place
+            <span className="sticker">Student tip</span>
+            <h3 className="poster text-4xl mt-3">
+              Put a place on the board
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Help your college mates find verified PGs, budget messes, and laptop fix spots.
@@ -115,11 +113,11 @@ export default function SubmitListingModal({ isOpen, onClose, onListingCreated }
                   onChange={handleChange}
                   className="w-full text-xs rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2"
                 >
-                  <option value="pg">🏠 PG / Hostel / Stay</option>
-                  <option value="food">🍲 Student Food / Mess</option>
-                  <option value="fix">🔧 Tech / Laptop Fix</option>
-                  <option value="study">📚 Library / Study Space</option>
-                  <option value="essentials">🖨️ Print & Essentials</option>
+                  <option value="pg">PG / hostel / stay</option>
+                  <option value="food">Food / mess</option>
+                  <option value="fix">Repairs</option>
+                  <option value="study">Study</option>
+                  <option value="essentials">Print</option>
                 </select>
               </div>
 

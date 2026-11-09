@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Compass, ArrowLeft, Lock, Mail, User, School, Sparkles, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Lock, Mail, User, School } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Signup() {
@@ -45,42 +45,24 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
-      {/* Top Navbar */}
-      <header className="w-full glass-header border-b border-slate-200/80 dark:border-slate-800/80">
+    <div className="min-h-screen flex flex-col">
+      <header className="w-full border-b-2 border-ink dark:border-yell/40 bg-paper dark:bg-night">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link
-            to="/"
-            className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 transition-colors"
-          >
+          <Link to="/" className="flex items-center gap-1.5 text-sm font-extrabold">
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Campus Guide</span>
+            <span>Back</span>
           </Link>
-
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-              <Compass className="w-4 h-4" />
-            </div>
-            <span className="font-extrabold text-base tracking-tight">CampusScout</span>
-          </Link>
-
-          <div className="w-20"></div>
+          <Link to="/" className="font-extrabold text-lg">Campus Scout</Link>
+          <div className="w-16"></div>
         </div>
       </header>
 
       {/* Main Signup Card */}
-      <main className="flex-grow flex items-center justify-center px-4 py-12 relative overflow-hidden">
-        <div className="absolute top-1/4 left-1/3 w-80 h-80 rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-80 h-80 rounded-full bg-purple-500/10 blur-3xl pointer-events-none"></div>
-
-        <div className="w-full max-w-md relative z-10 space-y-6">
+      <main className="flex-grow flex items-center justify-center px-4 py-12">
+        <div className="w-full max-w-md space-y-6">
           <div className="text-center space-y-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800 dark:bg-emerald-950/80 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800/60">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Join the Scout Community
-            </span>
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              Create an account
+            <h2 className="poster text-5xl text-ink dark:text-[#fff8ea]">
+              Make an account
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Post honest verdicts, flag scams, and help peers avoid broker traps.

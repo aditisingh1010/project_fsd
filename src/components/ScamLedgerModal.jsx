@@ -91,9 +91,9 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div 
-        className="w-full max-w-2xl rounded-3xl glass-card overflow-hidden shadow-2xl border border-slate-200/80 dark:border-slate-700/80 max-h-[90vh] flex flex-col relative"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-ink/70">
+      <div
+        className="w-full max-w-2xl glass-card max-h-[90vh] flex flex-col relative text-ink dark:text-[#fff8ea]"
         onClick={(e) => e.stopPropagation()}
       >
         <button 
@@ -107,9 +107,7 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
           {/* Header */}
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 dark:bg-rose-950/80 dark:text-rose-300 border border-rose-200 dark:border-rose-800">
-                Peer Scam Ledger
-              </span>
+              <span className="sticker">Scam ledger</span>
               <span className="text-[11px] font-medium text-slate-400">
                 Community Protection Network
               </span>
@@ -117,9 +115,8 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
 
             <div className="flex items-center justify-between gap-4 mt-1">
               <div>
-                <h3 className="text-xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                  <ShieldAlert className="w-5 h-5 text-rose-500" />
-                  Campus Fraud & Scam Radar
+                <h3 className="poster text-4xl mt-2">
+                  Don't scan that QR
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                   Verified warnings reported by Bengaluru college students to prevent UPI and deposit fraud.
@@ -128,7 +125,7 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
 
               <button
                 onClick={() => setShowAddForm(!showAddForm)}
-                className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 shadow-sm transition-all"
+                className="shrink-0 flex items-center gap-1.5 px-3 py-2 text-xs font-extrabold bg-yell text-ink"
               >
                 <PlusCircle className="w-4 h-4" />
                 <span>{showAddForm ? 'View List' : 'Flag Scam'}</span>
@@ -187,9 +184,9 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
                     onChange={(e) => setWarningLevel(e.target.value)}
                     className="w-full text-xs rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2"
                   >
-                    <option value="CRITICAL">🔴 CRITICAL (Active financial fraud)</option>
-                    <option value="HIGH">🟠 HIGH (Unnotified deductions/coercion)</option>
-                    <option value="MODERATE">🟡 MODERATE (Misleading advertisements)</option>
+                    <option value="CRITICAL">CRITICAL — active money fraud</option>
+                    <option value="HIGH">HIGH — hidden cuts or pressure</option>
+                    <option value="MODERATE">MODERATE — the ad is lying</option>
                   </select>
                 </div>
               </div>

@@ -1,3 +1,5 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -8,7 +10,8 @@ import scamRoutes from './routes/scamRoutes.js';
 import weatherRoutes from './routes/weatherRoutes.js';
 import transitRoutes from './routes/transitRoutes.js';
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 const PORT = process.env.PORT || 5000;

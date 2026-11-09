@@ -1,20 +1,15 @@
 import { Link } from 'react-router-dom';
-import { Compass, ShieldAlert, Heart, ExternalLink, MapPin } from 'lucide-react';
+import { ShieldAlert, Heart } from 'lucide-react';
 
 export default function Footer({ onOpenWeather, onOpenTransit, onOpenScams }) {
   return (
-    <footer className="w-full border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 mt-20 pt-16 pb-12 transition-colors">
+    <footer className="w-full border-t-2 border-ink dark:border-yell/40 bg-paper dark:bg-night mt-20 pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Col 1: Brand Info */}
           <div className="md:col-span-1 space-y-4">
-            <Link to="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-md shadow-indigo-500/20">
-                <Compass className="w-5 h-5" />
-              </div>
-              <span className="font-extrabold text-lg text-slate-900 dark:text-white">
-                CampusScout
-              </span>
+            <Link to="/" className="poster text-3xl text-ink dark:text-[#fff8ea]">
+              Campus Scout
             </Link>
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               The unfiltered peer city guide built by students, for students. We document the honest verdict and the downsides nobody warns you about.

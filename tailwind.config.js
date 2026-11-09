@@ -5,11 +5,14 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["'Plus Jakarta Sans'", "'Inter'", "system-ui", "sans-serif"],
-        display: ["'Plus Jakarta Sans'", "sans-serif"],
-        mono: ["'JetBrains Mono'", "monospace"],
+        sans: ["Segoe UI", "system-ui", "sans-serif"],
+        poster: ["Impact", "Arial Black", "sans-serif"],
       },
       colors: {
+        ink: "#1a1204",
+        paper: "#fff6e4",
+        night: "#12060e",
+        yell: "#ffe14a",
         brand: {
           50: '#eef2ff',
           100: '#e0e7ff',

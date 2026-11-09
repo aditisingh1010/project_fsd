@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   Search, 
-  MapPin, 
   SlidersHorizontal, 
   ShieldCheck, 
   Sparkles, 
@@ -102,12 +101,12 @@ export default function Home() {
   };
 
   const categories = [
-    { id: 'all', label: 'All Categories', emoji: '✨' },
-    { id: 'pg', label: 'PGs & Hostels', emoji: '🏠' },
-    { id: 'food', label: 'Student Food', emoji: '🍲' },
-    { id: 'fix', label: 'Laptop & Tech Fix', emoji: '🔧' },
-    { id: 'study', label: 'Study & Work', emoji: '📚' },
-    { id: 'essentials', label: 'Printing & Xerox', emoji: '🖨️' }
+    { id: 'all', label: 'All' },
+    { id: 'pg', label: 'PGs' },
+    { id: 'food', label: 'Food' },
+    { id: 'fix', label: 'Repairs' },
+    { id: 'study', label: 'Study' },
+    { id: 'essentials', label: 'Print' }
   ];
 
   const areas = [
@@ -119,7 +118,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors">
+    <div className="min-h-screen flex flex-col">
       <Header 
         onOpenWeather={() => setIsWeatherOpen(true)}
         onOpenTransit={() => setIsTransitOpen(true)}
@@ -128,175 +127,98 @@ export default function Home() {
         weatherData={weatherData}
       />
 
+      <section className="hero-screen">
+        <div className="flex flex-wrap gap-2">
+          <span className="sticker">NO BROKER FEE</span>
+          <span className="sticker-line">THE CATCH IS ON THE CARD</span>
+        </div>
+        <h1 className="poster text-5xl sm:text-7xl lg:text-8xl max-w-4xl mt-4">
+          Find a place<br />worth your rent.
+        </h1>
+        <p className="max-w-md mt-3 text-white/85">
+          PGs, mess food, repairs, and scam alerts around RV University. Students wrote the catch.
+        </p>
+        <form
+          className="mt-5 flex items-center max-w-xl bg-black/50 border border-white/40 p-1.5 pl-4"
+          onSubmit={(e) => { e.preventDefault(); fetchListings(); }}
+        >
+          <Search className="w-4 h-4 text-white/70 shrink-0" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="PG near Pattanagere, Anna meals, Wi-Fi curfew…"
+            className="w-full bg-transparent border-0 text-sm text-white placeholder-white/60 focus:ring-0 focus:outline-none"
+          />
+          <button type="submit" className="bg-yell text-ink font-extrabold text-sm px-4 py-2">
+            Search
+          </button>
+        </form>
+      </section>
+
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-10">
-        {/* HERO SECTION */}
-        <section className="relative rounded-3xl p-6 sm:p-10 lg:p-12 overflow-hidden bg-gradient-to-br from-indigo-900 via-slate-900 to-slate-950 text-white shadow-2xl border border-indigo-950">
-          {/* Subtle Glow Blobs */}
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-indigo-500/20 blur-3xl pointer-events-none"></div>
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 rounded-full bg-purple-500/20 blur-3xl pointer-events-none"></div>
-
-          <div className="relative z-10 max-w-3xl space-y-5">
-            {/* Top Pill Badges */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 backdrop-blur-md">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                Bengaluru Campus Scout
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                Zero Brokerage • Honest Peer Reviews
-              </span>
-            </div>
-
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1]">
-              The student guide that gives you <span className="text-gradient">the real catch.</span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
-              No staged photos. No fake 4.9 ratings. Real student verdicts on PGs, cheap messes, laptop repairs, and scam alerts around RV University, Mysore Road, and Kengeri.
-            </p>
-
-            {/* Smart Search Bar */}
-            <div className="pt-2">
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center p-2 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl gap-2">
-                <div className="flex items-center flex-grow px-3 py-2 text-white">
-                  <Search className="w-5 h-5 text-indigo-300 mr-2.5 shrink-0" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search 'PG near Pattanagere', 'Anna meals', 'WiFi curfew'..."
-                    className="w-full bg-transparent border-none text-sm text-white placeholder-slate-400 focus:ring-0 focus:outline-none"
-                  />
-                  {searchQuery && (
-                    <button 
-                      onClick={() => setSearchQuery('')}
-                      className="text-xs text-slate-400 hover:text-white px-2"
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-
-                <button
-                  onClick={fetchListings}
-                  className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md active:scale-95"
-                >
-                  Search Scout
-                </button>
-              </div>
-            </div>
-
-            {/* Live Campus Quick Links Bar */}
-            <div className="pt-2 flex flex-wrap items-center gap-3 text-xs">
-              <span className="text-slate-400 font-medium">Quick Jump:</span>
-              <button 
-                onClick={() => setSelectedCategory('pg')}
-                className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition-colors"
-              >
-                🏠 PGs & Hostels
-              </button>
-              <button 
-                onClick={() => setSelectedCategory('food')}
-                className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition-colors"
-              >
-                🍲 Student Canteens
-              </button>
-              <button 
-                onClick={() => setIsScamsOpen(true)}
-                className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition-colors flex items-center gap-1"
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                Olx QR Scam Alerts
-              </button>
-              <button 
-                onClick={() => setIsTransitOpen(true)}
-                className="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 transition-colors flex items-center gap-1"
-              >
-                <Train className="w-3.5 h-3.5" />
-                Purple Line Metro Fare
-              </button>
-            </div>
-          </div>
-        </section>
 
         {/* CAMPUS POCKETS & FILTER BAR */}
-        <section className="space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* Category Pills */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <section className="space-y-4 sticky top-16 z-30 bg-paper dark:bg-night py-3">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {categories.map(cat => (
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-3.5 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                  className={`px-3 py-2 text-xs font-extrabold whitespace-nowrap border-2 border-ink dark:border-yell/40 ${
                     selectedCategory === cat.id
-                      ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30 scale-100'
-                      : 'bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:border-indigo-400'
+                      ? 'bg-yell text-ink'
+                      : 'bg-white dark:bg-[#1c0c16] text-ink dark:text-[#fff8ea]'
                   }`}
                 >
-                  <span>{cat.emoji}</span>
                   <span>{cat.label}</span>
                 </button>
               ))}
             </div>
 
-            {/* View Mode Toggle (Grid vs Map) */}
-            <div className="flex items-center gap-1 p-1 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 self-start md:self-auto shrink-0">
+            <div className="flex items-center border-2 border-ink dark:border-yell/40 self-start md:self-auto shrink-0">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                className={`px-3 py-2 text-xs font-extrabold flex items-center gap-1.5 ${
+                  viewMode === 'grid' ? 'bg-yell text-ink' : 'text-ink dark:text-[#fff8ea]'
                 }`}
-                title="Grid view"
               >
                 <LayoutGrid className="w-4 h-4" />
-                <span className="hidden sm:inline">Cards</span>
+                Cards
               </button>
               <button
                 onClick={() => setViewMode('map')}
-                className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-                  viewMode === 'map'
-                    ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                className={`px-3 py-2 text-xs font-extrabold flex items-center gap-1.5 border-l-2 border-ink dark:border-yell/40 ${
+                  viewMode === 'map' ? 'bg-yell text-ink' : 'text-ink dark:text-[#fff8ea]'
                 }`}
-                title="Interactive map view"
               >
                 <MapIcon className="w-4 h-4" />
-                <span className="hidden sm:inline">Map Radar</span>
+                Map
               </button>
               <button
                 onClick={() => setViewMode('both')}
-                className={`p-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors ${
-                  viewMode === 'both'
-                    ? 'bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400'
-                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+                className={`px-3 py-2 text-xs font-extrabold flex items-center gap-1.5 border-l-2 border-ink dark:border-yell/40 ${
+                  viewMode === 'both' ? 'bg-yell text-ink' : 'text-ink dark:text-[#fff8ea]'
                 }`}
-                title="Split map and cards"
               >
                 <Compass className="w-4 h-4" />
-                <span className="hidden sm:inline">Split</span>
+                Split
               </button>
             </div>
           </div>
 
-          {/* Area Pockets & Secondary Filters */}
-          <div className="p-4 rounded-2xl glass-card flex flex-wrap items-center justify-between gap-4">
-            {/* Area Switcher */}
+          <div className="p-4 border-2 border-ink dark:border-yell/40 bg-white dark:bg-[#1c0c16] flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-1.5 flex-wrap">
-              <span className="text-xs font-bold text-slate-500 dark:text-slate-400 mr-1 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-indigo-500" /> Area:
-              </span>
+              <span className="text-xs font-extrabold mr-1">Area</span>
               {areas.map(area => (
                 <button
                   key={area.id}
                   onClick={() => setSelectedArea(area.id)}
-                  className={`px-3 py-1 rounded-xl text-xs font-semibold transition-all ${
+                  className={`px-3 py-1 text-xs font-extrabold border-2 border-ink dark:border-yell/40 ${
                     selectedArea === area.id
-                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                      : 'bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 hover:bg-slate-200'
+                      ? 'bg-yell text-ink'
+                      : 'bg-paper dark:bg-night text-ink dark:text-[#fff8ea]'
                   }`}
                 >
                   {area.label}
@@ -304,33 +226,32 @@ export default function Home() {
               ))}
             </div>
 
-            {/* Verified & Sorting Controls */}
             <div className="flex items-center gap-3 flex-wrap text-xs">
-              <label className="flex items-center gap-1.5 cursor-pointer font-semibold text-slate-700 dark:text-slate-300">
+              <label className="flex items-center gap-1.5 cursor-pointer font-extrabold">
                 <input
                   type="checkbox"
                   checked={verifiedOnly}
                   onChange={(e) => setVerifiedOnly(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+                  className="w-4 h-4"
                 />
-                <span>Verified Picks Only</span>
+                <span>Verified only</span>
               </label>
 
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="text-xs rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 py-1.5 pl-2.5 pr-8 font-medium"
+                className="text-xs font-extrabold border-2 border-ink dark:border-yell/40 bg-paper dark:bg-night text-ink dark:text-[#fff8ea] py-1.5 pl-2.5 pr-8"
               >
-                <option value="featured">Featured Picks</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="rating">Top Rated</option>
+                <option value="featured">Featured</option>
+                <option value="price-low">Price: low to high</option>
+                <option value="price-high">Price: high to low</option>
+                <option value="rating">Top rated</option>
               </select>
 
               {(selectedCategory !== 'all' || selectedArea !== 'all' || verifiedOnly || searchQuery) && (
                 <button
                   onClick={resetFilters}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                  className="p-1.5 border-2 border-ink dark:border-yell/40"
                   title="Reset filters"
                 >
                   <RotateCcw className="w-4 h-4" />
@@ -344,12 +265,9 @@ export default function Home() {
         {(viewMode === 'map' || viewMode === 'both') && (
           <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-indigo-500" />
-                Campus Geolocation & Distance Radar
-              </h2>
-              <span className="text-xs text-slate-500">
-                Showing {listings.length} verified landmarks
+              <h2 className="poster text-3xl text-ink dark:text-[#fff8ea]">Around campus</h2>
+              <span className="text-xs font-extrabold">
+                {listings.length} on the map
               </span>
             </div>
             <CampusMap listings={listings} onSelectListing={(l) => setSelectedListing(l)} />
@@ -361,20 +279,18 @@ export default function Home() {
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-                  Honest Listings & Verdicts
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
-                    {listings.length} available
-                  </span>
+                <h2 className="poster text-4xl text-ink dark:text-[#fff8ea] flex items-center gap-3">
+                  The board
+                  <span className="sticker text-[11px]">{listings.length} up</span>
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Every card features "The Catch" — what the brokers and landlords hide.
+                <p className="text-xs font-semibold mt-2 text-ink/70 dark:text-[#fff8ea]/70">
+                  Flip a card. The back is what the place leaves out.
                 </p>
               </div>
 
               <button
                 onClick={() => setIsSubmitOpen(true)}
-                className="hidden sm:flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                className="hidden sm:flex items-center gap-1.5 text-xs font-extrabold border-2 border-ink dark:border-yell/40 px-3 py-2 bg-yell text-ink"
               >
                 <PlusCircle className="w-4 h-4" />
                 Know a good place? Add it
@@ -406,8 +322,8 @@ export default function Home() {
             ) : (
               <div className="text-center py-16 p-8 rounded-3xl glass-card border border-dashed border-slate-300 dark:border-slate-800">
                 <Search className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-                <h3 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-1">
-                  No listings found for this filter
+                <h3 className="poster text-3xl mb-2">
+                  Nothing in this pocket
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
                   Try clearing the search query or selecting "All Pockets" to see places across Bengaluru.
@@ -426,7 +342,7 @@ export default function Home() {
         {/* FRAUD RADAR & TRANSIT HIGHLIGHT CALLOUTS */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
           {/* Scam Radar Highlight Banner */}
-          <div className="p-6 rounded-3xl bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent border border-rose-500/20 flex flex-col justify-between">
+          <div className="p-6 border-2 border-ink dark:border-yell/40 bg-white dark:bg-[#1c0c16] flex flex-col justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400">
@@ -436,8 +352,8 @@ export default function Home() {
                   Community Fraud Defense
                 </span>
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                Reported PG & Deposit Scams
+              <h3 className="poster text-3xl text-ink dark:text-[#fff8ea]">
+                Reported PG & deposit scams
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Fraudulent "holding deposits" on OLX, hidden paint deductions, and aggressive brokers at Pattanagere metro are tracked on the Scout Ledger.
@@ -450,7 +366,7 @@ export default function Home() {
               </span>
               <button
                 onClick={() => setIsScamsOpen(true)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 text-white hover:bg-rose-700 transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 text-xs font-extrabold bg-yell text-ink flex items-center gap-1.5"
               >
                 <span>Open Scam Radar</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -459,7 +375,7 @@ export default function Home() {
           </div>
 
           {/* Metro & Commute Fare Estimator Banner */}
-          <div className="p-6 rounded-3xl bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent border border-purple-500/20 flex flex-col justify-between">
+          <div className="p-6 border-2 border-ink dark:border-yell/40 bg-white dark:bg-[#1c0c16] flex flex-col justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -469,8 +385,8 @@ export default function Home() {
                   Bengaluru Transit Calculator
                 </span>
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                BMRCL Purple Line & Auto Pool Tool
+              <h3 className="poster text-3xl text-ink dark:text-[#fff8ea]">
+                Purple Line & auto split
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                 Calculate metro token vs smartcard fares from Pattanagere or Kengeri to Majestic, plus auto-meter split costs for campus student groups.
@@ -483,7 +399,7 @@ export default function Home() {
               </span>
               <button
                 onClick={() => setIsTransitOpen(true)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white hover:bg-purple-700 transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 text-xs font-extrabold bg-yell text-ink flex items-center gap-1.5"
               >
                 <span>Calculate Fares</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -493,19 +409,19 @@ export default function Home() {
         </section>
 
         {/* METHODOLOGY: WHY CAMPUS SCOUT EXISTS */}
-        <section className="p-8 sm:p-10 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-6">
+        <section className="p-8 sm:p-10 border-2 border-ink dark:border-yell/40 space-y-6">
           <div className="max-w-2xl">
-            <h3 className="text-xs font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1">
-              Our Editorial Standard
+            <h3 className="text-xs font-extrabold uppercase tracking-wider mb-2">
+              House rule
             </h3>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+            <h2 className="poster text-4xl text-ink dark:text-[#fff8ea]">
               Why we never accept broker listings.
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 space-y-2">
-              <span className="text-2xl font-black text-indigo-600 dark:text-indigo-400">01</span>
+              <span className="poster text-4xl text-ink dark:text-yell">01</span>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                 Anonymous Student Visits
               </h4>
@@ -515,7 +431,7 @@ export default function Home() {
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 space-y-2">
-              <span className="text-2xl font-black text-amber-500">02</span>
+              <span className="poster text-4xl text-ink dark:text-yell">02</span>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                 Mandatory "The Catch"
               </h4>
@@ -525,7 +441,7 @@ export default function Home() {
             </div>
 
             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 space-y-2">
-              <span className="text-2xl font-black text-emerald-500">03</span>
+              <span className="poster text-4xl text-ink dark:text-yell">03</span>
               <h4 className="text-sm font-bold text-slate-900 dark:text-white">
                 Zero Commission Policy
               </h4>
