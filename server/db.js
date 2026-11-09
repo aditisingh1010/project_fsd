@@ -1,7 +1,12 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import Listing from './models/Listing.js';
 import ScamReport from './models/ScamReport.js';
+import User from './models/User.js';
 import { initialListings, initialScams } from './data/seedData.js';
+
+const DEMO_EMAIL = 'scout@rvu.edu.in';
+const DEMO_PASSWORD = 'Scout123!';
 
 let isMongoConnected = false;
 
@@ -29,6 +34,7 @@ export const connectDB = async () => {
 
     // Auto-seed Atlas if empty
     await seedDatabaseIfEmpty();
+    await ensureDemoUser();
     return true;
   } catch (error) {
     console.error(`⚠️ MongoDB Atlas Connection Error: ${error.message}`);
@@ -58,4 +64,20 @@ async function seedDatabaseIfEmpty() {
   } catch (err) {
     console.error('Error during auto-seeding:', err.message);
   }
+}
+
+async function ensureDemoUser() {
+  const existing = await User.findOne({ email: DEMO_EMAIL });
+  if (existing) return;
+
+  const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10);
+  await User.create({
+    name: 'Demo Scout',
+    email: DEMO_EMAIL,
+    password: hashedPassword,
+    campus: 'RV University / Mysore Road',
+    savedListings: [],
+    role: 'student'
+  });
+  console.log('✅ Demo scout account saved in Atlas.');
 }

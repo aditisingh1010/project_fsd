@@ -140,7 +140,11 @@ export default function Home() {
         </p>
         <form
           className="mt-5 flex items-center max-w-xl bg-black/50 border border-white/40 p-1.5 pl-4"
-          onSubmit={(e) => { e.preventDefault(); fetchListings(); }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            fetchListings();
+            document.getElementById('filters')?.scrollIntoView({ behavior: 'smooth' });
+          }}
         >
           <Search className="w-4 h-4 text-white/70 shrink-0" />
           <input
@@ -159,7 +163,7 @@ export default function Home() {
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-10">
 
         {/* CAMPUS POCKETS & FILTER BAR */}
-        <section className="space-y-4 sticky top-16 z-30 bg-paper dark:bg-night py-3">
+        <section id="filters" className="space-y-4 sticky top-16 z-30 bg-paper dark:bg-night py-3 scroll-mt-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="flex items-center gap-2 overflow-x-auto pb-1">
               {categories.map(cat => (

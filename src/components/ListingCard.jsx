@@ -44,7 +44,7 @@ export default function ListingCard({ listing, onSelect }) {
             <h3 className="poster text-[26px] mt-1">{listing.title}</h3>
             <p className="text-sm opacity-70 mt-1">{listing.distanceInfo?.rvu}</p>
             <p className="poster text-3xl mt-2">
-              ₹{listing.price.toLocaleString('en-IN')}
+              ₹{Number(listing.price || 0).toLocaleString('en-IN')}
               <span className="font-sans text-xs font-bold normal-case tracking-normal">{period}</span>
             </p>
             <p className="mt-auto text-xs font-extrabold tracking-wider">FLIP FOR THE CATCH →</p>

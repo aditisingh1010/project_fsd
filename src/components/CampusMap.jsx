@@ -70,62 +70,114 @@ export default function CampusMap({ listings = [], onSelectListing, userCoordina
     if (labelRef.current) labelRef.current.setUrl(pack.labels);
   }, [isDark]);
 
+  const onSelectRef = useRef(onSelectListing);
+  onSelectRef.current = onSelectListing;
+
   // Update Markers when listings change
   useEffect(() => {
-    if (!mapInstanceRef.current || !markersLayerRef.current) return;
+    const map = mapInstanceRef.current;
+    const layer = markersLayerRef.current;
+    if (!map || !layer) return;
 
-    markersLayerRef.current.clearLayers();
+    layer.clearLayers();
 
-    // Campus Landmark Marker (RV University)
-    const stamp = (label) => L.divIcon({
-      className: 'scout-pin',
-      html: `<div class="scout-pin-face">${label}</div>`,
-      iconSize: [64, 26],
-      iconAnchor: [32, 13]
-    });
-    L.marker([12.9238, 77.4987], { icon: stamp('RVU'), zIndexOffset: 800 }).addTo(markersLayerRef.current)
-      .bindPopup("<b>RV University</b>");
-    L.marker([12.9206, 77.5016], { icon: stamp('METRO'), zIndexOffset: 700 }).addTo(markersLayerRef.current)
-      .bindPopup("<b>Pattanagere Metro</b><br/>Purple Line");
+    const pinIcon = (label) => {
+      const width = Math.max(40, label.length * 8 + 14);
+      const height = 28;
+      return L.divIcon({
+        className: 'scout-pin',
+        html: `<div class="scout-pin-face">${label}</div>`,
+        iconSize: [width, height],
+        iconAnchor: [width / 2, height]
+      });
+    };
 
-    // Add listing pins
-    listings.forEach(item => {
-      if (!item.coordinates || !item.coordinates.lat) return;
+    const entries = [];
+    const addPin = (latlng, label, marker) => {
+      marker.addTo(layer);
+      entries.push({ marker, latlng: L.latLng(latlng) });
+    };
+
+    addPin(
+      [12.9238, 77.4987],
+      'RVU',
+      L.marker([12.9238, 77.4987], { icon: pinIcon('RVU'), zIndexOffset: 500 }).bindPopup('<b>RV University</b>')
+    );
+    addPin(
+      [12.9206, 77.5016],
+      'METRO',
+      L.marker([12.9206, 77.5016], { icon: pinIcon('METRO'), zIndexOffset: 480 }).bindPopup('<b>Pattanagere Metro</b><br/>Purple Line')
+    );
+
+    listings.forEach((item) => {
+      const lat = Number(item.coordinates?.lat);
+      const lng = Number(item.coordinates?.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
       const words = { pg: 'PG', food: 'EAT', fix: 'FIX', study: 'STUDY', essentials: 'PRINT' };
-      const pinIcon = L.divIcon({
-        className: 'scout-pin',
-        html: `<div class="scout-pin-face">${words[item.category] || 'PIN'}</div>`,
-        iconSize: [52, 26],
-        iconAnchor: [26, 13]
-      });
-
+      const label = words[item.category] || 'PIN';
       const safe = (value) => String(value ?? '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+      const price = Number(item.price);
+      const priceText = Number.isFinite(price) ? `₹${price.toLocaleString('en-IN')}` : '';
       const popupContent = document.createElement('div');
       popupContent.style.maxWidth = '220px';
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'Full details';
+      button.style.cssText = 'width:100%;background:#1a1204;color:#ffe14a;border:none;padding:6px 8px;font-size:12px;font-weight:800;cursor:pointer;';
+      button.onclick = () => onSelectRef.current?.(item);
       popupContent.innerHTML = `
         <div style="font-family: Segoe UI, system-ui, sans-serif; color: #1a1204;">
           <h4 style="margin: 0; font-family: Impact, sans-serif; font-size: 18px; font-weight: 400;">${safe(item.title)}</h4>
-          <p style="margin: 4px 0; font-size: 12px;">${safe(item.area)} · ₹${item.price.toLocaleString('en-IN')}</p>
+          <p style="margin: 4px 0; font-size: 12px;">${safe(item.area)}${priceText ? ` · ${priceText}` : ''}</p>
           <div style="background: #ffe14a; padding: 6px; font-size: 12px; font-weight: 650; margin-bottom: 6px;">${safe(item.theCatch)}</div>
-          <button id="view-listing-${item.id || item._id}" style="width: 100%; background: #1a1204; color: #ffe14a; border: none; padding: 6px 8px; font-size: 12px; font-weight: 800; cursor: pointer;">Full details</button>
         </div>
       `;
+      popupContent.querySelector('div').appendChild(button);
 
-      const marker = L.marker([item.coordinates.lat, item.coordinates.lng], { icon: pinIcon })
-        .addTo(markersLayerRef.current)
-        .bindPopup(popupContent);
-
-      marker.on('popupopen', () => {
-        const btn = document.getElementById(`view-listing-${item.id || item._id}`);
-        if (btn) {
-          btn.onclick = () => {
-            if (onSelectListing) onSelectListing(item);
-          };
-        }
-      });
+      addPin(
+        [lat, lng],
+        label,
+        L.marker([lat, lng], { icon: pinIcon(label) }).bindPopup(popupContent)
+      );
     });
-  }, [listings, onSelectListing]);
+
+    const layout = () => {
+      const placed = [];
+      const gap = 48;
+      entries.forEach((entry) => {
+        const origin = map.latLngToLayerPoint(entry.latlng);
+        let point = origin;
+        let i = 0;
+        while (placed.some((p) => Math.hypot(p.x - point.x, p.y - point.y) < gap) && i < 20) {
+          const ring = Math.floor(i / 8) + 1;
+          const angle = (i * Math.PI) / 4;
+          point = L.point(
+            origin.x + Math.cos(angle) * gap * ring * 0.85,
+            origin.y + Math.sin(angle) * gap * ring * 0.85
+          );
+          i += 1;
+        }
+        placed.push(point);
+        entry.marker.setLatLng(map.layerPointToLatLng(point));
+      });
+    };
+
+    layout();
+    map.on('zoomend', layout);
+    map.on('resize', layout);
+    const frame = requestAnimationFrame(() => {
+      map.invalidateSize();
+      layout();
+    });
+
+    return () => {
+      cancelAnimationFrame(frame);
+      map.off('zoomend', layout);
+      map.off('resize', layout);
+      layer.clearLayers();
+    };
+  }, [listings]);
 
   // Geolocation detector
   const handleDetectLocation = () => {
@@ -148,11 +200,9 @@ export default function CampusMap({ listings = [], onSelectListing, userCoordina
           } else {
             const userIcon = L.divIcon({
               className: 'user-location-pin',
-              html: `
-                <div style="width: 16px; height: 16px; background: #ffe14a; border: 2px solid #1a1204;"></div>
-              `,
-              iconSize: [20, 20],
-              iconAnchor: [10, 10]
+              html: '<div class="you-pin"></div>',
+              iconSize: [16, 16],
+              iconAnchor: [8, 8]
             });
 
             userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon })

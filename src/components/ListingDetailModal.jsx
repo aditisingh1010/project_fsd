@@ -235,7 +235,7 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
             {listing.contactPhone && (
               <a
                 href={`tel:${listing.contactPhone}`}
-                className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-xs bg-slate-900 text-white dark:bg-white dark:text-slate-900 hover:opacity-90 shadow-sm transition-opacity"
+                className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 font-extrabold text-xs bg-ink text-[#fff6e4]"
               >
                 <Phone className="w-4 h-4" />
                 <span>Call {listing.contactPhone}</span>
