@@ -1,54 +1,37 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import { Crosshair } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext.jsx';
+import { priceLabel } from '../utils/priceLabel.js';
+
+const CAMPUS_POINT = [12.922521, 77.500907];
+const MAP_OPEN = [12.92329, 77.49975];
+const STREETS = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 
 export default function CampusMap({ listings = [], onSelectListing, userCoordinates = null }) {
-  const { isDark } = useTheme();
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersLayerRef = useRef(null);
   const userMarkerRef = useRef(null);
-  const tileRef = useRef(null);
-  const labelRef = useRef(null);
-  const tilePack = {
-    light: {
-      base: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-      labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
-    },
-    dark: {
-      base: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-      labels: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
-    }
-  };
   const [userLocation, setUserLocation] = useState(userCoordinates);
   const [detectingLoc, setDetectingLoc] = useState(false);
-
-  // RV University / Mysore Road coordinates
-  const defaultCenter = [12.9238, 77.4987];
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
     if (!mapInstanceRef.current) {
-      // Initialize map
       const map = L.map(mapContainerRef.current, {
-        center: defaultCenter,
-        zoom: 14,
+        center: MAP_OPEN,
+        zoom: 16,
         zoomControl: false
       });
 
       L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-      // OpenStreetMap Tile Layer
-      const pack = document.documentElement.classList.contains('dark') ? tilePack.dark : tilePack.light;
-      const tiles = L.tileLayer(pack.base, {
-        attribution: 'Tiles &copy; Esri',
-        maxZoom: 16
+      L.tileLayer(STREETS, {
+        attribution: '&copy; OpenStreetMap',
+        maxZoom: 19,
+        className: 'scout-basemap'
       }).addTo(map);
-      const labels = L.tileLayer(pack.labels, { maxZoom: 16 }).addTo(map);
-      tileRef.current = tiles;
-      labelRef.current = labels;
 
       // Markers Layer Group
       const markersLayer = L.layerGroup().addTo(map);
@@ -64,14 +47,9 @@ export default function CampusMap({ listings = [], onSelectListing, userCoordina
     };
   }, []);
 
-  useEffect(() => {
-    const pack = isDark ? tilePack.dark : tilePack.light;
-    if (tileRef.current) tileRef.current.setUrl(pack.base);
-    if (labelRef.current) labelRef.current.setUrl(pack.labels);
-  }, [isDark]);
-
   const onSelectRef = useRef(onSelectListing);
   onSelectRef.current = onSelectListing;
+  const framedRef = useRef(false);
 
   // Update Markers when listings change
   useEffect(() => {
@@ -92,33 +70,21 @@ export default function CampusMap({ listings = [], onSelectListing, userCoordina
       });
     };
 
-    const entries = [];
-    const addPin = (latlng, label, marker) => {
-      marker.addTo(layer);
-      entries.push({ marker, latlng: L.latLng(latlng) });
-    };
+    L.marker(CAMPUS_POINT, { icon: pinIcon('RVU'), zIndexOffset: 500 })
+      .addTo(layer)
+      .bindPopup('<b>RV University</b><br/>Middle of the grounds. The metro pin is the station at the Mysore Road gate.');
 
-    addPin(
-      [12.9238, 77.4987],
-      'RVU',
-      L.marker([12.9238, 77.4987], { icon: pinIcon('RVU'), zIndexOffset: 500 }).bindPopup('<b>RV University</b>')
-    );
-    addPin(
-      [12.9206, 77.5016],
-      'METRO',
-      L.marker([12.9206, 77.5016], { icon: pinIcon('METRO'), zIndexOffset: 480 }).bindPopup('<b>Pattanagere Metro</b><br/>Purple Line')
-    );
-
+    const points = [];
     listings.forEach((item) => {
+      if (item.pinned === false) return;
       const lat = Number(item.coordinates?.lat);
       const lng = Number(item.coordinates?.lng);
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
 
       const words = { pg: 'PG', food: 'EAT', fix: 'FIX', study: 'STUDY', essentials: 'PRINT' };
-      const label = words[item.category] || 'PIN';
+      const label = item.pinLabel || words[item.category] || 'PIN';
       const safe = (value) => String(value ?? '').replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
-      const price = Number(item.price);
-      const priceText = Number.isFinite(price) ? `₹${price.toLocaleString('en-IN')}` : '';
+      const priceText = priceLabel(item).main;
       const popupContent = document.createElement('div');
       popupContent.style.maxWidth = '220px';
       const button = document.createElement('button');
@@ -135,46 +101,33 @@ export default function CampusMap({ listings = [], onSelectListing, userCoordina
       `;
       popupContent.querySelector('div').appendChild(button);
 
-      addPin(
-        [lat, lng],
-        label,
-        L.marker([lat, lng], { icon: pinIcon(label) }).bindPopup(popupContent)
-      );
+      L.marker([lat, lng], { icon: pinIcon(label) })
+        .addTo(layer)
+        .bindPopup(popupContent);
+      points.push(L.latLng(lat, lng));
     });
 
-    const layout = () => {
-      const placed = [];
-      const gap = 48;
-      entries.forEach((entry) => {
-        const origin = map.latLngToLayerPoint(entry.latlng);
-        let point = origin;
-        let i = 0;
-        while (placed.some((p) => Math.hypot(p.x - point.x, p.y - point.y) < gap) && i < 20) {
-          const ring = Math.floor(i / 8) + 1;
-          const angle = (i * Math.PI) / 4;
-          point = L.point(
-            origin.x + Math.cos(angle) * gap * ring * 0.85,
-            origin.y + Math.sin(angle) * gap * ring * 0.85
-          );
-          i += 1;
-        }
-        placed.push(point);
-        entry.marker.setLatLng(map.layerPointToLatLng(point));
-      });
-    };
-
-    layout();
-    map.on('zoomend', layout);
-    map.on('resize', layout);
     const frame = requestAnimationFrame(() => {
       map.invalidateSize();
-      layout();
+      if (!points.length) return;
+      const span = L.latLngBounds(points).getSouthWest().distanceTo(L.latLngBounds(points).getNorthEast());
+      let focus = points;
+      if (span > 4000) {
+        const campus = L.latLng(CAMPUS_POINT);
+        const near = [campus];
+        points.forEach((point) => {
+          if (campus.distanceTo(point) < 1500) near.push(point);
+        });
+        focus = near;
+      }
+      const animate = framedRef.current;
+      if (focus.length === 1) map.setView(focus[0], 16, { animate });
+      else map.fitBounds(L.latLngBounds(focus).pad(0.4), { maxZoom: 16, animate });
+      framedRef.current = true;
     });
 
     return () => {
       cancelAnimationFrame(frame);
-      map.off('zoomend', layout);
-      map.off('resize', layout);
       layer.clearLayers();
     };
   }, [listings]);
@@ -222,7 +175,7 @@ export default function CampusMap({ listings = [], onSelectListing, userCoordina
 
   const handleResetToCampus = () => {
     if (mapInstanceRef.current) {
-      mapInstanceRef.current.flyTo(defaultCenter, 14);
+      mapInstanceRef.current.flyTo(CAMPUS_POINT, 16);
     }
   };
 

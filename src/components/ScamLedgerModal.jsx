@@ -47,7 +47,7 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
       setScams(prev => prev.map(s => (s.id === scamId || s._id === scamId) ? { ...s, upvotes: res.upvotes } : s));
     } catch (e) {
       // Optimistic update
-      setScams(prev => prev.map(s => (s.id === scamId || s._id === scamId) ? { ...s, upvotes: (s.upvotes || 1) + 1 } : s));
+      setScams(prev => prev.map(s => (s.id === scamId || s._id === scamId) ? { ...s, upvotes: Number(s.upvotes || 0) + 1 } : s));
     }
   };
 
@@ -119,7 +119,7 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
                   Don't scan that QR
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                  Verified warnings reported by Bengaluru college students to prevent UPI and deposit fraud.
+                  Standing warnings. These are patterns, not a named student's case file. Add one you actually saw.
                 </p>
               </div>
 
@@ -275,7 +275,7 @@ export default function ScamLedgerModal({ isOpen, onClose }) {
                     title="Confirm this happens"
                   >
                     <ThumbsUp className="w-3.5 h-3.5 text-indigo-500" />
-                    <span>{scam.upvotes || 1}</span>
+                    <span>{Number(scam.upvotes || 0)}</span>
                     <span className="hidden sm:inline text-[10px] text-slate-400">confirm</span>
                   </button>
                 </div>

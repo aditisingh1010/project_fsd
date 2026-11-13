@@ -111,7 +111,7 @@ export default function Home() {
 
   const areas = [
     { id: 'all', label: 'All Pockets' },
-    { id: 'Pattanagere', label: 'Pattanagere (RVU)' },
+    { id: 'Pattanagere', label: 'Pattanagere' },
     { id: 'Kengeri', label: 'Kengeri' },
     { id: 'RR Nagar', label: 'RR Nagar' },
     { id: 'Banashankari', label: 'Banashankari' }
@@ -136,7 +136,7 @@ export default function Home() {
           Find a place<br />worth your rent.
         </h1>
         <p className="max-w-md mt-3 text-white/85">
-          PGs, mess food, repairs, and scam alerts around RV University. Students wrote the catch.
+          Food and print on campus, and the shops past the gate in Kengeri, RR Nagar, and Banashankari. The catch is on the card.
         </p>
         <form
           className="mt-5 flex items-center max-w-xl bg-black/50 border border-white/40 p-1.5 pl-4"
@@ -151,7 +151,7 @@ export default function Home() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="PG near Pattanagere, Anna meals, Wi-Fi curfew…"
+            placeholder="Mingo's, Jumbo Xerox, Banashankari…"
             className="w-full bg-transparent border-0 text-sm text-white placeholder-white/60 focus:ring-0 focus:outline-none"
           />
           <button type="submit" className="bg-yell text-ink font-extrabold text-sm px-4 py-2">
@@ -165,7 +165,7 @@ export default function Home() {
         {/* CAMPUS POCKETS & FILTER BAR */}
         <section id="filters" className="space-y-4 sticky top-16 z-30 bg-paper dark:bg-night py-3 scroll-mt-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <div className="flex items-center gap-2 flex-wrap">
               {categories.map(cat => (
                 <button
                   key={cat.id}
@@ -269,11 +269,18 @@ export default function Home() {
         {(viewMode === 'map' || viewMode === 'both') && (
           <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <h2 className="poster text-3xl text-ink dark:text-[#fff8ea]">Around campus</h2>
+              <h2 className="poster text-3xl text-ink dark:text-[#fff8ea]">
+                {selectedArea === 'all' ? 'Around campus' : selectedArea}
+              </h2>
               <span className="text-xs font-extrabold">
-                {listings.length} on the map
+                {listings.filter((item) => item.pinned !== false).length} pins
               </span>
             </div>
+            {selectedArea === 'all' && (
+              <p className="text-xs font-semibold text-ink/70 dark:text-[#fff8ea]/70">
+                The opening frame is the campus gate. Kengeri, RR Nagar, and Banashankari each have their own chip.
+              </p>
+            )}
             <CampusMap listings={listings} onSelectListing={(l) => setSelectedListing(l)} />
           </section>
         )}
@@ -288,7 +295,7 @@ export default function Home() {
                   <span className="sticker text-[11px]">{listings.length} up</span>
                 </h2>
                 <p className="text-xs font-semibold mt-2 text-ink/70 dark:text-[#fff8ea]/70">
-                  Flip a card. The back is what the place leaves out.
+                  Flip a card. Campus and the pockets past the gate. Pictures stand in until someone uploads the real counter. Each pin is the mapped shop or station.
                 </p>
               </div>
 
@@ -324,19 +331,23 @@ export default function Home() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-16 p-8 rounded-3xl glass-card border border-dashed border-slate-300 dark:border-slate-800">
-                <Search className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+              <div className="text-center py-16 p-8 border-2 border-ink dark:border-yell/40">
+                <Search className="w-10 h-10 mx-auto mb-3" />
                 <h3 className="poster text-3xl mb-2">
                   Nothing in this pocket
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-4">
-                  Try clearing the search query or selecting "All Pockets" to see places across Bengaluru.
+                <p className="text-xs max-w-sm mx-auto mb-4">
+                  {selectedCategory === 'pg'
+                    ? 'No owner-direct PG yet. Broker numbers stay off this board. If you pay the owner, add the rent and the catch.'
+                    : selectedCategory === 'fix'
+                      ? 'No repair shop yet. Add the one you have used, and write what they leave off the quote.'
+                      : 'Nothing logged here yet. Clear the filters, or add a place you have actually used.'}
                 </p>
                 <button
                   onClick={resetFilters}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white"
+                  className="px-4 py-2 text-xs font-extrabold bg-yell text-ink border-2 border-ink"
                 >
-                  Reset All Filters
+                  Reset filters
                 </button>
               </div>
             )}
@@ -357,16 +368,16 @@ export default function Home() {
                 </span>
               </div>
               <h3 className="poster text-3xl text-ink dark:text-[#fff8ea]">
-                Reported PG & deposit scams
+                Patterns worth refusing
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                Fraudulent "holding deposits" on OLX, hidden paint deductions, and aggressive brokers at Pattanagere metro are tracked on the Scout Ledger.
+                A QR that takes a holding deposit, a painting fee that was never on the receipt, and a stranger at the metro who wants cash before you see the room.
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-rose-200/50 dark:border-rose-900/40 flex items-center justify-between">
-              <span className="text-xs font-bold text-rose-700 dark:text-rose-400">
-                3 active fraud alerts
+            <div className="mt-5 pt-4 border-t-2 border-ink dark:border-yell/40 flex items-center justify-between">
+              <span className="text-xs font-extrabold">
+                Standing warnings
               </span>
               <button
                 onClick={() => setIsScamsOpen(true)}
@@ -393,13 +404,13 @@ export default function Home() {
                 Purple Line & auto split
               </h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                Calculate metro token vs smartcard fares from Pattanagere or Kengeri to Majestic, plus auto-meter split costs for campus student groups.
+                Token versus smartcard from Pattanagere or Kengeri, and the auto meter split when a few of you share the ride.
               </p>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-purple-200/50 dark:border-purple-900/40 flex items-center justify-between">
-              <span className="text-xs font-bold text-purple-700 dark:text-purple-400">
-                Direct to Majestic in 24 mins
+            <div className="mt-5 pt-4 border-t-2 border-ink dark:border-yell/40 flex items-center justify-between">
+              <span className="text-xs font-extrabold">
+                Meter from the gate
               </span>
               <button
                 onClick={() => setIsTransitOpen(true)}
@@ -424,33 +435,33 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 space-y-2">
+            <div className="p-4 border-2 border-ink dark:border-yell/40 space-y-2">
               <span className="poster text-4xl text-ink dark:text-yell">01</span>
-              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                Anonymous Student Visits
+              <h4 className="text-sm font-extrabold">
+                Public facts, or someone who went
               </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                We inspect rooms unannounced. We check hot water geysers, Wi-Fi speed test latency at 9 PM, and meal quality.
+              <p className="text-xs leading-relaxed">
+                The starter board comes from the university's own pages and the metro map. A PG goes up when a student adds the owner, the rent, and the catch.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 space-y-2">
+            <div className="p-4 border-2 border-ink dark:border-yell/40 space-y-2">
               <span className="poster text-4xl text-ink dark:text-yell">02</span>
-              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                Mandatory "The Catch"
+              <h4 className="text-sm font-extrabold">
+                The catch is mandatory
               </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Every listing must declare the downsides: whether it is strict curfew, low water pressure on top floors, or noisy traffic.
+              <p className="text-xs leading-relaxed">
+                A pretty room with a 9:30 gate is how people get stuck. The back of the card is the part the poster leaves out.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/60 space-y-2">
+            <div className="p-4 border-2 border-ink dark:border-yell/40 space-y-2">
               <span className="poster text-4xl text-ink dark:text-yell">03</span>
-              <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-                Zero Commission Policy
+              <h4 className="text-sm font-extrabold">
+                No invented phone numbers
               </h4>
-              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                Brokers charge half-a-month rent just to show a room. Campus Scout gives direct owner WhatsApp and phone contacts for free.
+              <p className="text-xs leading-relaxed">
+                If the owner's number is not in hand, the card leaves it blank. Brokers stay off the board.
               </p>
             </div>
           </div>

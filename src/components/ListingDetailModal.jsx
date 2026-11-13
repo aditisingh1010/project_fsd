@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { 
   X, 
   MapPin, 
@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { api } from '../services/api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { priceLabel } from '../utils/priceLabel.js';
 
 export default function ListingDetailModal({ listing, onClose, onReviewAdded }) {
   const { user, isAuthenticated, savedListings, toggleSaveListing } = useAuth();
@@ -24,8 +25,15 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
   const [theCatch, setTheCatch] = useState('');
   const [studentName, setStudentName] = useState(user?.name || '');
   const [feedbackMsg, setFeedbackMsg] = useState('');
+  const [live, setLive] = useState(listing);
+
+  useEffect(() => {
+    setLive(listing);
+  }, [listing]);
 
   if (!listing) return null;
+  const place = live || listing;
+  const price = priceLabel(place);
 
   const isSaved = savedListings.includes(listing.id || listing._id);
 
@@ -35,11 +43,28 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
 
     setSubmittingReview(true);
     try {
-      const res = await api.addReview(listing.id || listing._id, {
+      await api.addReview(listing.id || listing._id, {
         studentName: studentName.trim() || 'Anonymous Scout',
         rating: Number(rating),
         comment: comment.trim(),
         theCatch: theCatch.trim() || 'No additional catch noted'
+      });
+      const nextReview = {
+        studentName: studentName.trim() || 'Anonymous Scout',
+        rating: Number(rating),
+        comment: comment.trim(),
+        theCatch: theCatch.trim() || 'No additional catch noted',
+        createdAt: new Date().toISOString()
+      };
+      setLive((prev) => {
+        const reviews = [...((prev || listing).reviews || []), nextReview];
+        const average = reviews.reduce((sum, review) => sum + (Number(review.rating) || 0), 0) / reviews.length;
+        return {
+          ...(prev || listing),
+          reviews,
+          reviewCount: reviews.length,
+          rating: Number(average.toFixed(1))
+        };
       });
       setFeedbackMsg('Your honest verdict was posted!');
       setComment('');
@@ -82,13 +107,12 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
         {/* Modal Scroll Content */}
         <div className="overflow-y-auto p-6 space-y-6">
           {/* Header Image */}
-          <div className="relative overflow-hidden aspect-[16/9] w-full bg-slate-100 dark:bg-slate-800">
+          <div className="relative overflow-hidden aspect-[3/2] w-full bg-ink">
             <img
-              src={listing.image}
-              alt={listing.title}
+              src={place.image}
+              alt=""
               className="w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
             <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
               <button
                 onClick={handleShare}
@@ -105,25 +129,19 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
                 <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
               </button>
             </div>
-            
-            <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
-              <div>
-                <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/90 dark:bg-slate-900/90 text-indigo-700 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 backdrop-blur-md">
-                  {listing.type || listing.category}
-                </span>
-                <h2 className="poster text-4xl text-white mt-2 leading-none">
-                  {listing.title}
-                </h2>
+          </div>
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <div className="text-[11px] font-extrabold tracking-widest">
+                {(place.type || place.category || '').toUpperCase()} · {place.area}
               </div>
-
-              <div className="text-right">
-                <span className="text-2xl font-black text-white">
-                  ₹{listing.price.toLocaleString('en-IN')}
-                </span>
-                <span className="block text-xs text-slate-300">
-                  per {listing.pricePeriod}
-                </span>
-              </div>
+              <h2 className="poster text-4xl mt-1 leading-none">
+                {place.title}
+              </h2>
+            </div>
+            <div className="text-right">
+              <span className="poster text-3xl leading-none">{price.main}</span>
+              {price.sub && <span className="block text-xs font-extrabold">{price.sub}</span>}
             </div>
           </div>
 
@@ -131,11 +149,11 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
           <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700/60 text-xs">
             <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
               <MapPin className="w-4 h-4 text-indigo-500 shrink-0" />
-              <span>{listing.address}</span>
+              <span>{place.address}</span>
             </div>
 
             <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(listing.title + ' ' + listing.address)}`}
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.title + ' ' + place.address)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-colors"
@@ -146,14 +164,14 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
           </div>
 
           {/* Campus Proximity Metrics */}
-          {listing.distanceInfo && (
+          {place.distanceInfo && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="p-3 border-2 border-ink dark:border-yell/40">
                 <span className="font-extrabold block mb-0.5">
                   From RV University
                 </span>
                 <span className="text-slate-600 dark:text-slate-400">
-                  {listing.distanceInfo.rvu}
+                  {place.distanceInfo.rvu}
                 </span>
               </div>
 
@@ -162,10 +180,14 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
                   From the metro
                 </span>
                 <span className="text-slate-600 dark:text-slate-400">
-                  {listing.distanceInfo.metro}
+                  {place.distanceInfo.metro}
                 </span>
               </div>
             </div>
+          )}
+
+          {place.distanceInfo?.travelTip && (
+            <p className="text-xs font-semibold">{place.distanceInfo.travelTip}</p>
           )}
 
           {/* Description */}
@@ -174,18 +196,18 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
               Overview
             </h4>
             <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-              {listing.description}
+              {place.description}
             </p>
           </div>
 
           {/* Amenities Grid */}
-          {listing.amenities && listing.amenities.length > 0 && (
+          {place.amenities && place.amenities.length > 0 && (
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-2.5">
                 Features & Amenities
               </h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {listing.amenities.map((item, idx) => (
+                {place.amenities.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-700 dark:text-slate-300">
                     <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
                     <span>{item}</span>
@@ -204,7 +226,7 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
               </h4>
             </div>
             <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-              {listing.honestVerdict}
+              {place.honestVerdict}
             </p>
           </div>
 
@@ -214,15 +236,15 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
               The catch
             </h4>
             <p className="text-sm font-semibold leading-relaxed">
-              {listing.theCatch}
+              {place.theCatch}
             </p>
           </div>
 
           {/* Contact Actions */}
           <div className="flex flex-wrap gap-3 pt-2">
-            {listing.whatsapp && (
+            {place.whatsapp && (
               <a
-                href={`https://wa.me/${listing.whatsapp}?text=Hi,%20I'm%20inquiring%20about%20${encodeURIComponent(listing.title)}%20via%20Campus%20Scout.`}
+                href={`https://wa.me/${place.whatsapp}?text=Hi,%20I'm%20inquiring%20about%20${encodeURIComponent(place.title)}%20via%20Campus%20Scout.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 rounded-2xl font-bold text-xs bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm transition-colors"
@@ -232,21 +254,40 @@ export default function ListingDetailModal({ listing, onClose, onReviewAdded }) 
               </a>
             )}
 
-            {listing.contactPhone && (
+            {place.contactPhone && (
               <a
-                href={`tel:${listing.contactPhone}`}
+                href={`tel:${place.contactPhone}`}
                 className="flex-1 min-w-[140px] flex items-center justify-center gap-2 py-3 font-extrabold text-xs bg-ink text-[#fff6e4]"
               >
                 <Phone className="w-4 h-4" />
-                <span>Call {listing.contactPhone}</span>
+                <span>Call {place.contactPhone}</span>
               </a>
             )}
           </div>
 
+          <div className="pt-2">
+            <h4 className="text-xs font-extrabold uppercase tracking-wider mb-2">
+              Student reviews
+            </h4>
+            {place.reviews?.length ? (
+              <ul className="space-y-2">
+                {place.reviews.map((review, index) => (
+                  <li key={`${review.createdAt || index}`} className="border-2 border-ink dark:border-yell/40 p-3 text-xs">
+                    <div className="font-extrabold">{review.studentName} · {review.rating}/5</div>
+                    <p className="mt-1">{review.comment}</p>
+                    {review.theCatch && <p className="catch-mark mt-2">{review.theCatch}</p>}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-xs">No student review on this card yet.</p>
+            )}
+          </div>
+
           {/* Add Review Section */}
-          <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
-            <h4 className="text-sm font-extrabold text-slate-900 dark:text-white mb-3">
-              Add Your Honest Peer Review
+          <div className="pt-6 border-t-2 border-ink dark:border-yell/40">
+            <h4 className="text-sm font-extrabold mb-3">
+              Add your own
             </h4>
 
             {feedbackMsg && (

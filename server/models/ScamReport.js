@@ -8,7 +8,7 @@ const scamReportSchema = new mongoose.Schema({
   scammerInfo: { type: String, required: true },
   description: { type: String, required: true },
   warningLevel: { type: String, enum: ['MODERATE', 'HIGH', 'CRITICAL'], default: 'HIGH' },
-  upvotes: { type: Number, default: 1 },
+  upvotes: { type: Number, default: 0 },
   reportedBy: { type: String, default: 'Anonymous Scout' },
   dateReported: { type: String, default: () => new Date().toISOString().split('T')[0] },
   createdAt: { type: Date, default: Date.now }

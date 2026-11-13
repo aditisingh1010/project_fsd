@@ -4,6 +4,27 @@ import { getDbStatus, memoryStore } from '../db.js';
 
 const router = express.Router();
 
+const standInImage = {
+  pg: '/places/room.jpg',
+  food: '/places/mingos.jpg',
+  fix: '/places/xerox.jpg',
+  study: '/places/library.jpg',
+  essentials: '/places/xerox.jpg'
+};
+
+function hasQuotedPrice(item) {
+  return ['month', 'meal', 'service'].includes(item?.pricePeriod);
+}
+
+function compareQuotedPrice(a, b, direction) {
+  const ap = hasQuotedPrice(a) ? Number(a.price) : null;
+  const bp = hasQuotedPrice(b) ? Number(b.price) : null;
+  if (ap == null && bp == null) return 0;
+  if (ap == null) return 1;
+  if (bp == null) return -1;
+  return direction * (ap - bp);
+}
+
 // GET all listings with advanced filters
 router.get('/', async (req, res) => {
   try {
@@ -36,12 +57,11 @@ router.get('/', async (req, res) => {
         ];
       }
 
-      let sortOption = { createdAt: -1 };
-      if (sort === 'price-low') sortOption = { price: 1 };
-      else if (sort === 'price-high') sortOption = { price: -1 };
-      else if (sort === 'rating') sortOption = { rating: -1 };
-
-      const listings = await Listing.find(query).sort(sortOption);
+      let listings = await Listing.find(query).lean();
+      if (sort === 'price-low') listings.sort((a, b) => compareQuotedPrice(a, b, 1));
+      else if (sort === 'price-high') listings.sort((a, b) => compareQuotedPrice(a, b, -1));
+      else if (sort === 'rating') listings.sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviewCount || 0) - (a.reviewCount || 0));
+      else listings.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
       return res.json(listings);
     } else {
       // In-Memory filtering
@@ -72,11 +92,11 @@ router.get('/', async (req, res) => {
       }
 
       if (sort === 'price-low') {
-        results.sort((a, b) => a.price - b.price);
+        results.sort((a, b) => compareQuotedPrice(a, b, 1));
       } else if (sort === 'price-high') {
-        results.sort((a, b) => b.price - a.price);
+        results.sort((a, b) => compareQuotedPrice(a, b, -1));
       } else if (sort === 'rating') {
-        results.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        results.sort((a, b) => (b.rating || 0) - (a.rating || 0) || (b.reviewCount || 0) - (a.reviewCount || 0));
       } else {
         results.reverse();
       }
@@ -147,14 +167,18 @@ router.post('/', async (req, res) => {
       address: address || `${area}, Bengaluru`,
       price: Number(price),
       pricePeriod: pricePeriod || 'month',
-      rating: 4.5,
-      reviewCount: 1,
+      rating: 0,
+      reviewCount: 0,
       verified: false,
-      image: image || 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
+      pinned: true,
+      pinLabel: '',
+      image: image && !String(image).includes('unsplash.com')
+        ? image
+        : (standInImage[category] || '/places/room.jpg'),
       description: description || 'Student reviewed community listing.',
       honestVerdict,
       theCatch,
-      amenities: Array.isArray(amenities) ? amenities : (amenities ? amenities.split(',').map(s => s.trim()) : ['Verified Student Pick']),
+      amenities: Array.isArray(amenities) ? amenities : (amenities ? amenities.split(',').map(s => s.trim()).filter(Boolean) : []),
       contactPhone: contactPhone || '',
       whatsapp: whatsapp || '',
       coordinates: coordinates || { lat: 12.9238, lng: 77.4987 },
@@ -207,7 +231,7 @@ router.post('/:id/reviews', async (req, res) => {
       listing.reviews.push(reviewObj);
       listing.reviewCount = listing.reviews.length;
       // recalculate rating average
-      const total = listing.reviews.reduce((acc, r) => acc + (r.rating || 4.5), 0);
+      const total = listing.reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
       listing.rating = Number((total / listing.reviews.length).toFixed(1));
 
       await listing.save();
@@ -218,7 +242,7 @@ router.post('/:id/reviews', async (req, res) => {
       if (!listing.reviews) listing.reviews = [];
       listing.reviews.push(reviewObj);
       listing.reviewCount = listing.reviews.length;
-      const total = listing.reviews.reduce((acc, r) => acc + (r.rating || 4.5), 0);
+      const total = listing.reviews.reduce((acc, r) => acc + (Number(r.rating) || 0), 0);
       listing.rating = Number((total / listing.reviews.length).toFixed(1));
       return res.status(201).json({ message: 'Review added', reviews: listing.reviews, rating: listing.rating });
     }

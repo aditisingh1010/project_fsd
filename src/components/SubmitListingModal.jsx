@@ -14,11 +14,11 @@ export default function SubmitListingModal({ isOpen, onClose, onListingCreated }
     address: '',
     price: '',
     pricePeriod: 'month',
-    image: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
+    image: '/places/room.jpg',
     description: '',
     honestVerdict: '',
     theCatch: '',
-    amenities: 'Wi-Fi, 3 Meals, Power Backup',
+    amenities: '',
     contactPhone: '',
     whatsapp: ''
   });
@@ -76,7 +76,7 @@ export default function SubmitListingModal({ isOpen, onClose, onListingCreated }
               Put a place on the board
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Help your college mates find verified PGs, budget messes, and laptop fix spots.
+              Owner-direct only. Leave the phone blank if you do not have it. The catch is required.
             </p>
           </div>
 
@@ -96,7 +96,7 @@ export default function SubmitListingModal({ isOpen, onClose, onListingCreated }
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="e.g. Royal Comforts PG for Boys"
+                placeholder="The place, as students call it"
                 className="w-full text-xs rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2"
                 required
               />
@@ -131,7 +131,7 @@ export default function SubmitListingModal({ isOpen, onClose, onListingCreated }
                   onChange={handleChange}
                   className="w-full text-xs rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white py-2"
                 >
-                  <option value="Pattanagere">Pattanagere (RVU)</option>
+                  <option value="Pattanagere">Pattanagere</option>
                   <option value="Kengeri">Kengeri</option>
                   <option value="RR Nagar">RR Nagar</option>
                   <option value="Banashankari">Banashankari</option>

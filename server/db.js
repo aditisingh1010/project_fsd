@@ -32,8 +32,7 @@ export const connectDB = async () => {
     isMongoConnected = true;
     console.log(`✅ MongoDB Atlas Connected: ${conn.connection.host}`);
 
-    // Auto-seed Atlas if empty
-    await seedDatabaseIfEmpty();
+    await syncSeedCatalog();
     await ensureDemoUser();
     return true;
   } catch (error) {
@@ -46,23 +45,49 @@ export const connectDB = async () => {
 
 export const getDbStatus = () => isMongoConnected;
 
-async function seedDatabaseIfEmpty() {
+const retiredListingIds = ['list-1', 'list-2', 'list-3', 'list-4', 'list-5', 'list-6', 'list-7', 'list-8'];
+
+async function syncSeedCatalog() {
   try {
-    const count = await Listing.countDocuments();
-    if (count === 0) {
-      console.log('🌱 Seeding initial campus listings into MongoDB Atlas...');
-      await Listing.insertMany(initialListings);
-      console.log('✅ Listings seeded successfully.');
+    const removed = await Listing.deleteMany({ id: { $in: retiredListingIds } });
+    if (removed.deletedCount) {
+      console.log(`Removed ${removed.deletedCount} retired seed listings.`);
     }
 
-    const scamCount = await ScamReport.countDocuments();
-    if (scamCount === 0) {
-      console.log('🌱 Seeding initial scam alerts into MongoDB Atlas...');
-      await ScamReport.insertMany(initialScams);
-      console.log('✅ Scam reports seeded successfully.');
+    for (const item of initialListings) {
+      const existing = await Listing.findOne({ id: item.id }).lean();
+      if (!existing) {
+        await Listing.create({ ...item, reviews: [] });
+        continue;
+      }
+      const keepReviews = (existing.reviewCount || 0) > 0;
+      await Listing.updateOne(
+        { id: item.id },
+        {
+          $set: {
+            ...item,
+            rating: keepReviews ? existing.rating : item.rating,
+            reviewCount: keepReviews ? existing.reviewCount : item.reviewCount
+          }
+        }
+      );
     }
+
+    for (const item of initialScams) {
+      const existing = await ScamReport.findOne({ id: item.id }).lean();
+      if (!existing) {
+        await ScamReport.create(item);
+        continue;
+      }
+      const sameWarning = existing.title === item.title;
+      await ScamReport.updateOne(
+        { id: item.id },
+        { $set: sameWarning ? { ...item, upvotes: existing.upvotes } : item }
+      );
+    }
+    console.log('Campus catalog synced.');
   } catch (err) {
-    console.error('Error during auto-seeding:', err.message);
+    console.error('Error during catalog sync:', err.message);
   }
 }
 

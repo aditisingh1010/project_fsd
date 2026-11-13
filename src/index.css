@@ -117,6 +117,13 @@
   border-color: #1a1204;
 }
 
+.flip-back .catch-mark {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .scout-pin {
   background: transparent !important;
   border: none !important;
@@ -127,6 +134,7 @@
   background: #ffe14a;
   color: #1a1204;
   border: 2px solid #1a1204;
+  box-shadow: 0 0 0 2px #fff6e4;
   font-weight: 800;
   font-size: 10px;
   letter-spacing: 0.04em;
@@ -162,7 +170,16 @@
   height: 100%;
   border-radius: 0;
   z-index: 10;
+  background: #f2efe9;
   font-family: "Segoe UI", system-ui, sans-serif;
+}
+
+.dark .leaflet-container {
+  background: #140c10;
+}
+
+.dark .leaflet-container .scout-basemap {
+  filter: invert(0.92) hue-rotate(180deg) brightness(1.08) contrast(0.9) saturate(0.8);
 }
 
 .leaflet-popup-content-wrapper,

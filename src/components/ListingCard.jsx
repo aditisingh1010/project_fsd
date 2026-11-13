@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
+import { priceLabel } from '../utils/priceLabel.js';
 
 export default function ListingCard({ listing, onSelect }) {
   const { savedListings, toggleSaveListing } = useAuth();
@@ -8,13 +9,8 @@ export default function ListingCard({ listing, onSelect }) {
   const isSaved = savedListings.includes(id);
   const [flipped, setFlipped] = useState(false);
 
-  const period = listing.pricePeriod === 'month'
-    ? '/mo'
-    : listing.pricePeriod === 'meal'
-      ? '/meal'
-      : listing.pricePeriod === 'service'
-        ? ''
-        : '';
+  const price = priceLabel(listing);
+  const reviews = Number(listing.reviewCount) || 0;
 
   return (
     <article
@@ -41,11 +37,14 @@ export default function ListingCard({ listing, onSelect }) {
             <div className="text-[11px] font-extrabold tracking-widest">
               {(listing.type || listing.category || '').toUpperCase()} · {listing.area}
             </div>
-            <h3 className="poster text-[26px] mt-1">{listing.title}</h3>
+            <h3 className="poster text-[26px] leading-none mt-1 line-clamp-2">{listing.title}</h3>
             <p className="text-sm opacity-70 mt-1">{listing.distanceInfo?.rvu}</p>
-            <p className="poster text-3xl mt-2">
-              ₹{Number(listing.price || 0).toLocaleString('en-IN')}
-              <span className="font-sans text-xs font-bold normal-case tracking-normal">{period}</span>
+            <p className={`poster mt-2 leading-none ${price.main.startsWith('₹') ? 'text-3xl' : 'text-2xl'}`}>
+              {price.main}
+              {price.sub && <span className="font-sans text-xs font-bold normal-case tracking-normal"> {price.sub}</span>}
+            </p>
+            <p className="text-[11px] font-extrabold mt-1">
+              {reviews > 0 ? `${listing.rating} · ${reviews} student ${reviews === 1 ? 'review' : 'reviews'}` : 'No student rating yet'}
             </p>
             <p className="mt-auto text-xs font-extrabold tracking-wider">FLIP FOR THE CATCH →</p>
           </div>

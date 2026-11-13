@@ -1,4 +1,5 @@
 import { initialListings, initialScams } from '../../server/data/seedData.js';
+import { compareQuotedPrice } from '../utils/priceLabel.js';
 
 // Base API configuration (Netlify / Render environment variable support)
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
@@ -77,6 +78,9 @@ export const api = {
           i.honestVerdict.toLowerCase().includes(s)
         );
       }
+      if (params.sort === 'price-low') filtered.sort((a, b) => compareQuotedPrice(a, b, 1));
+      else if (params.sort === 'price-high') filtered.sort((a, b) => compareQuotedPrice(a, b, -1));
+      else if (params.sort === 'rating') filtered.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       return filtered;
     }
   },
@@ -108,8 +112,8 @@ export const api = {
       const newLocal = {
         ...listingData,
         id: 'local-' + Date.now(),
-        rating: 4.8,
-        reviewCount: 1,
+        rating: 0,
+        reviewCount: 0,
         verified: false,
         reviews: []
       };
@@ -133,7 +137,7 @@ export const api = {
         reviews: [
           { ...reviewData, createdAt: new Date() }
         ],
-        rating: 4.5
+        rating: Number(reviewData.rating) || 0
       };
     }
   },
